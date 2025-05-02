@@ -32,7 +32,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'user_id' => $request->user_id,
                 'total_amount' => $request->total,
-                'shipping_address' => $request->input('shipping_address', $request->user()->address),
+                'shipping_address' => $request->input('shipping_address', 'Default shipping address'),
                 'status' => 'pending',
             ]);
             
