@@ -1,13 +1,23 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { Container, Form, Button, Card, Alert, Spinner, Row, Col } from 'react-bootstrap';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if there's a success message from registration or other sources
+    if (location.state?.message) {
+      setSuccess(location.state.message);
+    }
+  }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,110 +47,119 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
-          <Link to="/register" className="font-medium text-primary hover:text-primary-dark">
-            create a new account
-          </Link>
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-md rounded-lg sm:px-10">
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
+    <Container className="py-5 auth-form">
+      <Row className="justify-content-center">
+        <Col md={8} lg={6} xl={5}>
+          <Card className="shadow border-0 overflow-hidden">
+            <Row className="g-0">
+              <Col md={5} className="d-none d-md-block">
+                <div 
+                  className="h-100" 
+                  style={{
+                    backgroundImage: 'linear-gradient(rgba(13, 110, 253, 0.8), rgba(13, 110, 253, 0.9)), url(https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
+                  <div className="d-flex flex-column justify-content-center align-items-center h-100 p-4 text-white">
+                    <h3 className="fw-bold mb-4">Welcome Back</h3>
+                    <p className="text-center mb-4 text-white">Sign in to access your account and continue shopping!</p>
+                    <div className="mt-auto">
+                      <p className="small mb-0 text-white">Don't have an account?</p>
+                      <Link to="/register" className="btn btn-outline-light mt-2 w-100">Register Now</Link>
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-red-800">{error}</p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
-              <div className="mt-1">
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="form-input"
-                />
-              </div>
-            </div>
+              </Col>
+              <Col md={7}>
+                <Card.Body className="p-4">
+                  <div className="text-center mb-4">
+                    <h4 className="fw-bold">Sign In</h4>
+                    <p className="text-muted">Enter your credentials to access your account</p>
+                  </div>
+                  
+                  {success && (
+                    <Alert variant="success" className="mb-4">
+                      {success}
+                    </Alert>
+                  )}
+                  
+                  {error && (
+                    <Alert variant="danger" className="mb-4">
+                      {error}
+                    </Alert>
+                  )}
+                  
+                  <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Username</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter your username"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
+                    </Form.Group>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="form-input"
-                />
-              </div>
-            </div>
+                    <Form.Group className="mb-4">
+                      <Form.Label>Password</Form.Label>
+                      <Form.Control
+                        type="password"
+                        placeholder="Enter your password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </Form.Group>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <Form.Check 
+                        type="checkbox"
+                        id="remember-me"
+                        label="Remember me"
+                      />
+                      <Link to="#" className="text-primary small">Forgot password?</Link>
+                    </div>
 
-              <div className="text-sm">
-                <a href="#" className="font-medium text-primary hover:text-primary-dark">
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-              >
-                {isLoading ? (
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : null}
-                Sign in
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      className="w-100 py-2"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="me-2"
+                          />
+                          Signing in...
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-box-arrow-in-right me-2"></i>
+                          Sign In
+                        </>
+                      )}
+                    </Button>
+                    
+                    <div className="text-center mt-4 d-md-none">
+                      <p className="mb-0 text-muted">Don't have an account?</p>
+                      <Link to="/register" className="text-primary">Create account</Link>
+                    </div>
+                  </Form>
+                </Card.Body>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

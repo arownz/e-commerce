@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Container, Row, Col, Card, Button, Spinner, Alert, Carousel } from 'react-bootstrap';
 
 function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [featuredCategories] = useState([
+    { id: 1, name: 'Electronics', icon: 'bi-laptop' },
+    { id: 2, name: 'Clothing', icon: 'bi-tags' },
+    { id: 3, name: 'Home & Kitchen', icon: 'bi-house' },
+    { id: 4, name: 'Sports', icon: 'bi-trophy' },
+  ]);
 
   useEffect(() => {
     // Fetch products from Laravel API
@@ -23,8 +30,25 @@ function Home() {
   const addToCart = (product) => {
     // Get existing cart
     const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    // Add product to cart
-    localStorage.setItem('cart', JSON.stringify([...existingCart, product]));
+    
+    // Check if product already exists in cart
+    const productInCart = existingCart.find(item => item.id === product.id);
+    
+    if (productInCart) {
+      // Increment quantity if product exists
+      const updatedCart = existingCart.map(item => 
+        item.id === product.id 
+          ? { ...item, quantity: (item.quantity || 1) + 1 } 
+          : item
+      );
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+    } else {
+      // Add product with quantity 1 if it doesn't exist
+      localStorage.setItem('cart', JSON.stringify([...existingCart, {...product, quantity: 1}]));
+    }
+    
+    // Dispatch custom event to update cart count in navbar
+    window.dispatchEvent(new Event('cartUpdated'));
     
     // Show success notification
     alert('Product added to cart!');
@@ -32,88 +56,193 @@ function Home() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <Spinner animation="border" variant="primary" />
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-50 p-4 rounded-md border border-red-200">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Container className="py-5">
+        <Alert variant="danger">
+          <Alert.Heading>Error</Alert.Heading>
+          <p>{error}</p>
+        </Alert>
+      </Container>
     );
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Featured Products</h1>
-          <p className="mt-4 text-lg text-gray-500">Browse our latest collection of premium products</p>
+    <>
+      {/* Hero Banner Section */}
+      <div className="mb-5">
+        <Carousel fade interval={5000} indicators={false}>
+          <Carousel.Item>
+            <div style={{
+              height: '500px', 
+              backgroundImage: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(https://images.unsplash.com/photo-1607082350899-7e105aa886ae?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}>
+              <Container className="d-flex flex-column justify-content-center h-100 py-5">
+                <Row className="align-items-center">
+                  <Col md={6}>
+                    <h1 className="display-4 fw-bold mb-4 text-white">Summer Collection</h1>
+                    <p className="fs-5 mb-4 text-white">Discover our latest summer products with special discounts.</p>
+                    <Button variant="light" size="lg" className="fw-bold">Shop Now</Button>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+          </Carousel.Item>
+          <Carousel.Item>
+            <div style={{
+              height: '500px', 
+              backgroundImage: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(https://images.unsplash.com/photo-1607083206325-caf1edba7a0f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}>
+              <Container className="d-flex flex-column justify-content-center h-100 py-5">
+                <Row className="align-items-center">
+                  <Col md={6}>
+                    <h1 className="display-4 fw-bold mb-4 text-white">New Arrivals</h1>
+                    <p className="fs-5 mb-4 text-white">Explore our latest collection of premium items.</p>
+                    <Button variant="light" size="lg" className="fw-bold">Explore</Button>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+          </Carousel.Item>
+        </Carousel>
+      </div>
+
+      {/* Featured Categories */}
+      <Container className="mb-5">
+        <h2 className="text-center mb-4 fw-bold">Shop by Category</h2>
+        <Row className="g-4 justify-content-center">
+          {featuredCategories.map(category => (
+            <Col key={category.id} xs={6} md={3}>
+              <Card className="text-center h-100 border-0 shadow-sm hover-shadow">
+                <Card.Body className="d-flex flex-column justify-content-center py-4">
+                  <div className="rounded-circle bg-light mx-auto mb-3 d-flex justify-content-center align-items-center" style={{ width: '80px', height: '80px' }}>
+                    <i className={`bi ${category.icon} fs-2 text-primary`}></i>
+                  </div>
+                  <Card.Title className="mb-0">{category.name}</Card.Title>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Container>
+
+      {/* Products Section */}
+      <Container className="py-5">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2 className="fw-bold mb-0">Featured Products</h2>
+          <Button variant="outline-primary">View All</Button>
         </div>
 
         {products.length === 0 ? (
-          <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No products</h3>
-            <p className="mt-1 text-sm text-gray-500">Check back soon for new products.</p>
+          <div className="text-center py-5">
+            <i className="bi bi-inbox fs-1 text-secondary"></i>
+            <h3 className="mt-3">No products available</h3>
+            <p className="text-muted">Check back soon for new products</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <Row xs={1} sm={2} md={3} lg={4} className="g-4">
             {products.map(product => (
-              <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <div className="h-48 bg-gray-200 flex items-center justify-center">
-                  {product.image_url ? (
-                    <img 
-                      src={product.image_url} 
-                      alt={product.name} 
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-gray-400">
-                      <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
+              <Col key={product.id}>
+                <Card className="h-100 shadow-sm hover-shadow border-0">
+                  <div className="position-relative">
+                    <div className="bg-light" style={{ height: '200px', overflow: 'hidden' }}>
+                      {product.image_url ? (
+                        <Card.Img 
+                          variant="top" 
+                          src={product.image_url} 
+                          alt={product.name} 
+                          style={{ height: '100%', objectFit: 'cover', width: '100%' }}
+                        />
+                      ) : (
+                        <div className="h-100 w-100 d-flex align-items-center justify-content-center">
+                          <i className="bi bi-image text-secondary" style={{ fontSize: '3rem' }}></i>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{product.name}</h3>
-                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">{product.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-gray-900">${product.price}</span>
-                    <button 
+                    <Button 
+                      variant="primary" 
+                      size="sm" 
+                      className="position-absolute top-0 end-0 m-2 rounded-circle p-2"
                       onClick={() => addToCart(product)}
-                      className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                      style={{ width: '38px', height: '38px' }}
                     >
-                      Add to Cart
-                    </button>
+                      <i className="bi bi-cart-plus"></i>
+                    </Button>
                   </div>
-                </div>
-              </div>
+                  <Card.Body className="d-flex flex-column">
+                    <Card.Title className="h6">{product.name}</Card.Title>
+                    <Card.Text className="text-muted small mb-4" style={{ 
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: '2',
+                      WebkitBoxOrient: 'vertical'
+                    }}>
+                      {product.description}
+                    </Card.Text>
+                    <div className="mt-auto d-flex justify-content-between align-items-center">
+                      <span className="fw-bold fs-5">${product.price}</span>
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm"
+                        onClick={() => addToCart(product)}
+                      >
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
             ))}
-          </div>
+          </Row>
         )}
+      </Container>
+
+      {/* Features Section */}
+      <div className="bg-light py-5 mt-5">
+        <Container>
+          <Row className="g-4 text-center">
+            <Col md={4}>
+              <div className="d-flex flex-column align-items-center">
+                <div className="rounded-circle bg-primary p-3 mb-3">
+                  <i className="bi bi-truck text-white fs-3"></i>
+                </div>
+                <h5>Free Shipping</h5>
+                <p className="text-muted">On orders over $50</p>
+              </div>
+            </Col>
+            <Col md={4}>
+              <div className="d-flex flex-column align-items-center">
+                <div className="rounded-circle bg-primary p-3 mb-3">
+                  <i className="bi bi-shield-check text-white fs-3"></i>
+                </div>
+                <h5>Secure Payments</h5>
+                <p className="text-muted">100% secure payment</p>
+              </div>
+            </Col>
+            <Col md={4}>
+              <div className="d-flex flex-column align-items-center">
+                <div className="rounded-circle bg-primary p-3 mb-3">
+                  <i className="bi bi-arrow-repeat text-white fs-3"></i>
+                </div>
+                <h5>Easy Returns</h5>
+                <p className="text-muted">30 day return policy</p>
+              </div>
+            </Col>
+          </Row>
+        </Container>
       </div>
-    </div>
+    </>
   );
 }
 
