@@ -12,7 +12,8 @@ function Register() {
     contact_number: '',
     email_address: ''
   });
-  const [error, setError] = useState('');
+  const [generalError, setGeneralError] = useState('');
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -22,7 +23,8 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setGeneralError('');
+    setErrors({});
     setIsLoading(true);
     
     try {
@@ -31,13 +33,19 @@ function Register() {
       if (response.data.success) {
         navigate('/login', { state: { message: 'Registration successful! Please login.' } });
       } else {
-        setError(response.data.message || 'Registration failed');
+        setGeneralError(response.data.message || 'Registration failed');
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
+      if (error.response && error.response.data) {
+        if (error.response.data.message && typeof error.response.data.message === 'object') {
+          // Handle validation errors (Laravel returns these as an object)
+          setErrors(error.response.data.message);
+        } else {
+          // Handle general error message
+          setGeneralError(error.response.data.message || 'Registration failed. Please try again.');
+        }
       } else {
-        setError('Registration failed. Please try again.');
+        setGeneralError('Registration failed. Please try again.');
       }
       console.error('Registration error:', error);
     } finally {
@@ -77,9 +85,20 @@ function Register() {
                     <p className="text-muted">Fill in your details to get started</p>
                   </div>
                   
-                  {error && (
+                  {generalError && (
                     <Alert variant="danger" className="mb-4">
-                      {error}
+                      {generalError}
+                    </Alert>
+                  )}
+                  
+                  {Object.keys(errors).length > 0 && (
+                    <Alert variant="danger" className="mb-4">
+                      <Alert.Heading>Please correct the following errors:</Alert.Heading>
+                      <ul className="mb-0">
+                        {Object.entries(errors).map(([field, errorArr]) => (
+                          <li key={field}>{errorArr[0]}</li>
+                        ))}
+                      </ul>
                     </Alert>
                   )}
                   
@@ -95,7 +114,13 @@ function Register() {
                             required
                             value={formData.username}
                             onChange={handleChange}
+                            isInvalid={!!errors.username}
                           />
+                          {errors.username && (
+                            <Form.Control.Feedback type="invalid">
+                              {errors.username[0]}
+                            </Form.Control.Feedback>
+                          )}
                         </Form.Group>
                       </Col>
                       <Col md={6}>
@@ -108,7 +133,13 @@ function Register() {
                             required
                             value={formData.password}
                             onChange={handleChange}
+                            isInvalid={!!errors.password}
                           />
+                          {errors.password && (
+                            <Form.Control.Feedback type="invalid">
+                              {errors.password[0]}
+                            </Form.Control.Feedback>
+                          )}
                         </Form.Group>
                       </Col>
                     </Row>
@@ -122,7 +153,13 @@ function Register() {
                         required
                         value={formData.full_name}
                         onChange={handleChange}
+                        isInvalid={!!errors.full_name}
                       />
+                      {errors.full_name && (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.full_name[0]}
+                        </Form.Control.Feedback>
+                      )}
                     </Form.Group>
 
                     <Form.Group className="mb-3">
@@ -134,7 +171,13 @@ function Register() {
                         required
                         value={formData.address}
                         onChange={handleChange}
+                        isInvalid={!!errors.address}
                       />
+                      {errors.address && (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.address[0]}
+                        </Form.Control.Feedback>
+                      )}
                     </Form.Group>
 
                     <Row>
@@ -148,7 +191,13 @@ function Register() {
                             required
                             value={formData.contact_number}
                             onChange={handleChange}
+                            isInvalid={!!errors.contact_number}
                           />
+                          {errors.contact_number && (
+                            <Form.Control.Feedback type="invalid">
+                              {errors.contact_number[0]}
+                            </Form.Control.Feedback>
+                          )}
                         </Form.Group>
                       </Col>
                       <Col md={6}>
@@ -161,7 +210,13 @@ function Register() {
                             required
                             value={formData.email_address}
                             onChange={handleChange}
+                            isInvalid={!!errors.email_address}
                           />
+                          {errors.email_address && (
+                            <Form.Control.Feedback type="invalid">
+                              {errors.email_address[0]}
+                            </Form.Control.Feedback>
+                          )}
                         </Form.Group>
                       </Col>
                     </Row>

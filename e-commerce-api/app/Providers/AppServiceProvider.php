@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Fix for MySQL older versions with max key length issues
+        Schema::defaultStringLength(191);
+        
+        // CORS headers are now handled by Laravel CORS middleware
+        // so we don't need to set them manually here
     }
 }

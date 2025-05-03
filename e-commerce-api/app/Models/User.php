@@ -44,4 +44,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class, 'user_id', 'user_id');
     }
+    
+    /**
+     * Override the getAuthIdentifierName method to use user_id
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'user_id';
+    }
 }

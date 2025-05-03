@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -64,25 +65,56 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // Check username
-        $user = User::where('username', $request->username)->first();
+        try {
+            // Check username
+            $user = User::where('username', $request->username)->first();
 
-        // Check password
-        if (!$user || !Hash::check($request->password, $user->password)) {
+            // Log attempt for debugging
+            Log::info('Login attempt', [
+                'username' => $request->username,
+                'user_found' => !is_null($user),
+            ]);
+
+            // Check password
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials',
+                ], 401);
+            }
+
+            // Create token safely
+            try {
+                $token = $user->createToken('auth_token')->plainTextToken;
+            } catch (\Exception $e) {
+                Log::error('Token creation error', [
+                    'user_id' => $user->user_id,
+                    'error' => $e->getMessage(),
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication system error. Please contact support.',
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful',
+                'user' => $user,
+                'token' => $token,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Login error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials',
-            ], 401);
+                'message' => 'Server error during authentication.',
+                'debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
-
-        // Create token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token,
-        ]);
     }
 }

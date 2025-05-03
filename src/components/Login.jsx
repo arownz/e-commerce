@@ -39,7 +39,25 @@ function Login({ onLogin }) {
         setError(response.data.message || 'Login failed');
       }
     } catch (error) {
-      setError('Invalid credentials. Please try again.');
+      // Improved error handling
+      if (error.response) {
+        // Server responded with an error status
+        if (error.response.status === 401) {
+          setError('Invalid username or password. Please try again.');
+        } else if (error.response.status === 500) {
+          setError('Server error. Please try again later or contact support.');
+        } else if (error.response.data && error.response.data.message) {
+          setError(error.response.data.message);
+        } else {
+          setError('An error occurred during login. Please try again.');
+        }
+      } else if (error.request) {
+        // Request was made but no response
+        setError('Unable to connect to the server. Please check your internet connection.');
+      } else {
+        // Something else caused the error
+        setError('An error occurred. Please try again.');
+      }
       console.error('Login error:', error);
     } finally {
       setIsLoading(false);

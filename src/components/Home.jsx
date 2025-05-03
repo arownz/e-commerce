@@ -17,7 +17,17 @@ function Home() {
     // Fetch products from Laravel API
     axios.get('http://localhost:8000/api/products')
       .then(response => {
-        setProducts(response.data.data || response.data);
+        if (response.data.data) {
+          // Handle response format: { success: true, message: '...', data: [...] }
+          setProducts(response.data.data);
+        } else if (Array.isArray(response.data)) {
+          // Handle direct array response
+          setProducts(response.data);
+        } else {
+          // If neither format works, show an error
+          console.error('Unexpected data format:', response.data);
+          setError('Unexpected data format received from the server');
+        }
         setLoading(false);
       })
       .catch(error => {
