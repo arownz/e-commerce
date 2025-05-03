@@ -9,13 +9,19 @@ class Category extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'name',
         'description',
+        'image_url'
     ];
 
     /**
-     * Get the products for this category.
+     * Get the products for the category.
      */
     public function products()
     {

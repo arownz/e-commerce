@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Carousel } from 'react-bootstrap';
+import { useToast } from './Toast';
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -12,12 +14,14 @@ function Home() {
     { id: 3, name: 'Home & Kitchen', icon: 'bi-house' },
     { id: 4, name: 'Sports', icon: 'bi-trophy' },
   ]);
-
+  const { showToast } = useToast();
+  
   useEffect(() => {
     // Fetch products from Laravel API
     axios.get('http://localhost:8000/api/products')
       .then(response => {
-        if (response.data.data) {
+        console.log('API Response:', response.data); // For debugging
+        if (response.data && response.data.success && Array.isArray(response.data.data)) {
           // Handle response format: { success: true, message: '...', data: [...] }
           setProducts(response.data.data);
         } else if (Array.isArray(response.data)) {
@@ -52,16 +56,15 @@ function Home() {
           : item
       );
       localStorage.setItem('cart', JSON.stringify(updatedCart));
+      showToast(`Increased ${product.name} quantity in cart`, 'success');
     } else {
       // Add product with quantity 1 if it doesn't exist
       localStorage.setItem('cart', JSON.stringify([...existingCart, {...product, quantity: 1}]));
+      showToast(`${product.name} added to cart!`, 'success');
     }
     
     // Dispatch custom event to update cart count in navbar
     window.dispatchEvent(new Event('cartUpdated'));
-    
-    // Show success notification
-    alert('Product added to cart!');
   };
 
   if (loading) {
@@ -100,7 +103,7 @@ function Home() {
                   <Col md={6}>
                     <h1 className="display-4 fw-bold mb-4 text-white">Summer Collection</h1>
                     <p className="fs-5 mb-4 text-white">Discover our latest summer products with special discounts.</p>
-                    <Button variant="light" size="lg" className="fw-bold">Shop Now</Button>
+                    <Button as={Link} to="/category/2" variant="light" size="lg" className="fw-bold">Shop Now</Button>
                   </Col>
                 </Row>
               </Container>
@@ -118,7 +121,7 @@ function Home() {
                   <Col md={6}>
                     <h1 className="display-4 fw-bold mb-4 text-white">New Arrivals</h1>
                     <p className="fs-5 mb-4 text-white">Explore our latest collection of premium items.</p>
-                    <Button variant="light" size="lg" className="fw-bold">Explore</Button>
+                    <Button as={Link} to="/new-arrivals" variant="light" size="lg" className="fw-bold">Explore</Button>
                   </Col>
                 </Row>
               </Container>
@@ -133,14 +136,16 @@ function Home() {
         <Row className="g-4 justify-content-center">
           {featuredCategories.map(category => (
             <Col key={category.id} xs={6} md={3}>
-              <Card className="text-center h-100 border-0 shadow-sm hover-shadow">
-                <Card.Body className="d-flex flex-column justify-content-center py-4">
-                  <div className="rounded-circle bg-light mx-auto mb-3 d-flex justify-content-center align-items-center" style={{ width: '80px', height: '80px' }}>
-                    <i className={`bi ${category.icon} fs-2 text-primary`}></i>
-                  </div>
-                  <Card.Title className="mb-0">{category.name}</Card.Title>
-                </Card.Body>
-              </Card>
+              <Link to={`/category/${category.id}`} className="text-decoration-none">
+                <Card className="text-center h-100 border-0 shadow-sm hover-shadow">
+                  <Card.Body className="d-flex flex-column justify-content-center py-4">
+                    <div className="rounded-circle bg-light mx-auto mb-3 d-flex justify-content-center align-items-center" style={{ width: '80px', height: '80px' }}>
+                      <i className={`bi ${category.icon} fs-2 text-primary`}></i>
+                    </div>
+                    <Card.Title className="mb-0">{category.name}</Card.Title>
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
           ))}
         </Row>
@@ -150,7 +155,7 @@ function Home() {
       <Container className="py-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold mb-0">Featured Products</h2>
-          <Button variant="outline-primary">View All</Button>
+          <Button as={Link} to="/featured" variant="outline-primary">View All</Button>
         </div>
 
         {products.length === 0 ? (
@@ -164,7 +169,7 @@ function Home() {
             {products.map(product => (
               <Col key={product.id}>
                 <Card className="h-100 shadow-sm hover-shadow border-0">
-                  <div className="position-relative">
+                  <Link to={`/products/${product.id}`} className="text-decoration-none">
                     <div className="bg-light" style={{ height: '200px', overflow: 'hidden' }}>
                       {product.image_url ? (
                         <Card.Img 
@@ -179,31 +184,36 @@ function Home() {
                         </div>
                       )}
                     </div>
-                    <Button 
-                      variant="primary" 
-                      size="sm" 
-                      className="position-absolute top-0 end-0 m-2 rounded-circle p-2"
-                      onClick={() => addToCart(product)}
-                      style={{ width: '38px', height: '38px' }}
-                    >
-                      <i className="bi bi-cart-plus fs-6"></i>
-                    </Button>
-                  </div>
+                  </Link>
+                  <Button 
+                    variant="primary" 
+                    size="sm" 
+                    className="position-absolute top-0 end-0 m-2 rounded-circle p-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      addToCart(product);
+                    }}
+                    style={{ width: '38px', height: '38px' }}
+                  >
+                    <i className="bi bi-cart-plus fs-6"></i>
+                  </Button>
                   <Card.Body className="d-flex flex-column">
-                    <Card.Title className="h6">{product.name}</Card.Title>
-                    <Card.Text className="text-muted small mb-4" style={{ 
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: '2',
-                      WebkitBoxOrient: 'vertical'
-                    }}>
-                      {product.description}
-                    </Card.Text>
+                    <Link to={`/products/${product.id}`} className="text-decoration-none text-dark">
+                      <Card.Title className="h6">{product.name}</Card.Title>
+                      <Card.Text className="text-muted small mb-4" style={{ 
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: '2',
+                        WebkitBoxOrient: 'vertical'
+                      }}>
+                        {product.description}
+                      </Card.Text>
+                    </Link>
                     <div className="mt-auto d-flex justify-content-between align-items-center">
                       <span className="fw-bold fs-5">₱{product.price}</span>
-                      <Button 
-                        variant="outline-primary" 
+                      <Button
+                        variant="outline-primary"
                         size="sm"
                         onClick={() => addToCart(product)}
                       >
@@ -224,8 +234,8 @@ function Home() {
           <Row className="g-4 text-center">
             <Col md={4}>
               <div className="d-flex flex-column align-items-center">
-                <div className="rounded-circle bg-primary p-3 mb-3">
-                  <i className="bi bi-truck text-white fs-3"></i>
+                <div className="rounded-circle bg-primary p-3 mb-3" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className="bi bi-truck text-white" style={{ fontSize: '2rem', fontWeight: 'bold' }}></i>
                 </div>
                 <h5>Free Shipping</h5>
                 <p className="text-muted">On orders over ₱50</p>
@@ -233,8 +243,8 @@ function Home() {
             </Col>
             <Col md={4}>
               <div className="d-flex flex-column align-items-center">
-                <div className="rounded-circle bg-primary p-3 mb-3">
-                  <i className="bi bi-shield-check text-white fs-3"></i>
+                <div className="rounded-circle bg-primary p-3 mb-3" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className="bi bi-shield-check text-white" style={{ fontSize: '2rem', fontWeight: 'bold' }}></i>
                 </div>
                 <h5>Secure Payments</h5>
                 <p className="text-muted">100% secure payment</p>
@@ -242,8 +252,8 @@ function Home() {
             </Col>
             <Col md={4}>
               <div className="d-flex flex-column align-items-center">
-                <div className="rounded-circle bg-primary p-3 mb-3">
-                  <i className="bi bi-arrow-repeat text-white fs-3"></i>
+                <div className="rounded-circle bg-primary p-3 mb-3" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className="bi bi-arrow-repeat text-white" style={{ fontSize: '2rem', fontWeight: 'bold' }}></i>
                 </div>
                 <h5>Easy Returns</h5>
                 <p className="text-muted">30 day return policy</p>

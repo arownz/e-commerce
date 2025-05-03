@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Form, Button, Card, Alert, Spinner, Row, Col } from 'react-bootstrap';
-import './AuthForms.css'; // Using the same shared CSS file
+import { Container, Form, Button, Card, Alert, Spinner, Row, Col, InputGroup } from 'react-bootstrap';
+import './AuthForms.css';
+import { useToast } from './Toast';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -10,15 +11,18 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
 
   useEffect(() => {
     // Check if there's a success message from registration or other sources
     if (location.state?.message) {
       setSuccess(location.state.message);
+      showToast(location.state.message, 'success');
     }
-  }, [location]);
+  }, [location, showToast]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,9 +39,11 @@ function Login({ onLogin }) {
         // Store user data and token
         localStorage.setItem('token', response.data.token);
         onLogin(response.data.user);
+        showToast('Login successful! Welcome back.', 'success');
         navigate('/');
       } else {
         setError(response.data.message || 'Login failed');
+        showToast(response.data.message || 'Login failed', 'danger');
       }
     } catch (error) {
       // Improved error handling
@@ -45,19 +51,25 @@ function Login({ onLogin }) {
         // Server responded with an error status
         if (error.response.status === 401) {
           setError('Invalid username or password. Please try again.');
+          showToast('Invalid username or password. Please try again.', 'danger');
         } else if (error.response.status === 500) {
           setError('Server error. Please try again later.');
+          showToast('Server error. Please try again later.', 'danger');
         } else if (error.response.data && error.response.data.message) {
           setError(error.response.data.message);
+          showToast(error.response.data.message, 'danger');
         } else {
           setError('An error occurred during login. Please try again.');
+          showToast('An error occurred during login. Please try again.', 'danger');
         }
       } else if (error.request) {
         // Request was made but no response
         setError('Unable to connect to the server. Please check your internet connection.');
+        showToast('Unable to connect to the server. Please check your internet connection.', 'danger');
       } else {
         // Something else caused the error
         setError('An error occurred. Please try again.');
+        showToast('An error occurred. Please try again.', 'danger');
       }
       console.error('Login error:', error);
     } finally {
@@ -123,13 +135,21 @@ function Login({ onLogin }) {
 
                     <Form.Group className="mb-4">
                       <Form.Label>Password</Form.Label>
-                      <Form.Control
-                        type="password"
-                        placeholder="Enter your password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
+                      <InputGroup>
+                        <Form.Control
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <Button 
+                          variant="outline-secondary"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                        </Button>
+                      </InputGroup>
                     </Form.Group>
 
                     <div className="d-flex justify-content-between align-items-center mb-4">

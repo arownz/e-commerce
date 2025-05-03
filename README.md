@@ -16,3 +16,13 @@ If you are developing a production application, we recommend using TypeScript an
 * XAMPP Localhost
 * Laravel
 * PHP 8.2.12 — Laravel 12.11.1
+
+## General Design using React Bootsrap:
+
+![1746272425838](image/README/1746272425838.png)
+
+![1746272469414](image/README/1746272469414.png)
+
+![1746272485238](image/README/1746272485238.png)
+
+![1746272503548](image/README/1746272503548.png)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,15 +13,22 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // Simple array for testing if the route works
-        return response()->json([
-            'success' => true,
-            'message' => 'Products retrieved successfully',
-            'data' => [
-                ['id' => 1, 'name' => 'Test Product 1', 'price' => 99.99, 'description' => 'Test product description', 'image_url' => null, 'stock_quantity' => 10],
-                ['id' => 2, 'name' => 'Test Product 2', 'price' => 149.99, 'description' => 'Another test product', 'image_url' => null, 'stock_quantity' => 5],
-            ]
-        ]);
+        try {
+            // Fetch actual products from database with their category
+            $products = Product::with('category')->where('is_available', true)->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Products retrieved successfully',
+                'data' => $products
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve products',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -28,17 +36,75 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Product retrieved successfully',
-            'data' => [
-                'id' => $id,
-                'name' => 'Test Product',
-                'price' => 99.99,
-                'description' => 'This is a test product',
-                'image_url' => null,
-                'stock_quantity' => 10
-            ]
-        ]);
+        try {
+            $product = Product::with('category')->findOrFail($id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Product retrieved successfully',
+                'data' => $product
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+    
+    /**
+     * Get new arrivals (most recent products).
+     */
+    public function newArrivals()
+    {
+        try {
+            // Get the 8 most recently added products
+            $products = Product::with('category')
+                ->where('is_available', true)
+                ->orderBy('created_at', 'desc')
+                ->take(8)
+                ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'New arrivals retrieved successfully',
+                'data' => $products
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve new arrivals',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get featured products.
+     */
+    public function featured()
+    {
+        try {
+            // In a real app, you might have a 'featured' flag or use most sold products
+            // For now, we'll just return some random products
+            $products = Product::with('category')
+                ->where('is_available', true)
+                ->inRandomOrder()
+                ->take(8)
+                ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Featured products retrieved successfully',
+                'data' => $products
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve featured products',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

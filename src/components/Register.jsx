@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
-import './AuthForms.css'; // We'll create this shared CSS file
+import { Container, Row, Col, Form, Button, Card, Alert, Spinner, InputGroup } from 'react-bootstrap';
+import './AuthForms.css';
+import { useToast } from './Toast';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -16,10 +17,19 @@ function Register() {
   const [generalError, setGeneralError] = useState('');
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    
+    // Clear error for field being edited
+    if (errors[e.target.name]) {
+      const updatedErrors = { ...errors };
+      delete updatedErrors[e.target.name];
+      setErrors(updatedErrors);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -32,21 +42,26 @@ function Register() {
       const response = await axios.post('http://localhost:8000/api/register', formData);
       
       if (response.data.success) {
+        showToast('Registration successful! Please login.', 'success');
         navigate('/login', { state: { message: 'Registration successful! Please login.' } });
       } else {
         setGeneralError(response.data.message || 'Registration failed');
+        showToast(response.data.message || 'Registration failed', 'danger');
       }
     } catch (error) {
       if (error.response && error.response.data) {
         if (error.response.data.message && typeof error.response.data.message === 'object') {
           // Handle validation errors (Laravel returns these as an object)
           setErrors(error.response.data.message);
+          showToast('Please correct the errors in the form', 'danger');
         } else {
           // Handle general error message
           setGeneralError(error.response.data.message || 'Registration failed. Please try again.');
+          showToast(error.response.data.message || 'Registration failed. Please try again.', 'danger');
         }
       } else {
         setGeneralError('Registration failed. Please try again.');
+        showToast('Registration failed. Please try again.', 'danger');
       }
       console.error('Registration error:', error);
     } finally {
@@ -127,20 +142,31 @@ function Register() {
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Password</Form.Label>
-                          <Form.Control
-                            type="password"
-                            name="password"
-                            placeholder="Create a password"
-                            required
-                            value={formData.password}
-                            onChange={handleChange}
-                            isInvalid={!!errors.password}
-                          />
-                          {errors.password && (
-                            <Form.Control.Feedback type="invalid">
-                              {errors.password[0]}
-                            </Form.Control.Feedback>
-                          )}
+                          <InputGroup>
+                            <Form.Control
+                              type={showPassword ? "text" : "password"}
+                              name="password"
+                              placeholder="Create a password"
+                              required
+                              value={formData.password}
+                              onChange={handleChange}
+                              isInvalid={!!errors.password}
+                            />
+                            <Button 
+                              variant="outline-secondary"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                            </Button>
+                            {errors.password && (
+                              <Form.Control.Feedback type="invalid">
+                                {errors.password[0]}
+                              </Form.Control.Feedback>
+                            )}
+                          </InputGroup>
+                          <Form.Text className="text-muted">
+                            Password must be at least 6 characters long
+                          </Form.Text>
                         </Form.Group>
                       </Col>
                     </Row>

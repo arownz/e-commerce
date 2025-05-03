@@ -9,6 +9,7 @@
 .brand-link {
   position: relative;
   overflow: hidden;
+  transition: opacity 0.3s ease;
 }
 
 .brand-link::after {
@@ -26,10 +27,15 @@
   width: 100%;
 }
 
+.brand-link:hover {
+  opacity: 0.85;
+}
+
 /* Navigation hover animation */
 .nav-link-hover {
   position: relative;
   overflow: hidden;
+  transition: color 0.3s;
 }
 
 .nav-link-hover::after {
@@ -48,19 +54,45 @@
   width: 100%;
 }
 
+.nav-link-hover:hover {
+  color: #0d6efd !important;
+}
+
 /* Fix register button */
 .register-btn {
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 4px;
   box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .register-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .register-btn:active {
   transform: translateY(0);
+}
+
+/* Fix for the blue outline on brand link */
+.no-focus-outline:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Dropdown menu styles */
+.dropdown-menu {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 8px;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
 }
