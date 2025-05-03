@@ -186,7 +186,7 @@ function Home() {
                       onClick={() => addToCart(product)}
                       style={{ width: '38px', height: '38px' }}
                     >
-                      <i className="bi bi-cart-plus"></i>
+                      <i className="bi bi-cart-plus fs-6"></i>
                     </Button>
                   </div>
                   <Card.Body className="d-flex flex-column">
@@ -201,7 +201,7 @@ function Home() {
                       {product.description}
                     </Card.Text>
                     <div className="mt-auto d-flex justify-content-between align-items-center">
-                      <span className="fw-bold fs-5">${product.price}</span>
+                      <span className="fw-bold fs-5">₱{product.price}</span>
                       <Button 
                         variant="outline-primary" 
                         size="sm"
@@ -228,7 +228,7 @@ function Home() {
                   <i className="bi bi-truck text-white fs-3"></i>
                 </div>
                 <h5>Free Shipping</h5>
-                <p className="text-muted">On orders over $50</p>
+                <p className="text-muted">On orders over ₱50</p>
               </div>
             </Col>
             <Col md={4}>

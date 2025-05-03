@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
+import './AuthForms.css'; // We'll create this shared CSS file
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ function Register() {
   return (
     <Container className="py-5 auth-form">
       <Row className="justify-content-center">
-        <Col md={10} lg={8} xl={7}>
+        <Col md={12} lg={10} xl={9}>
           <Card className="shadow border-0 overflow-hidden">
             <Row className="g-0">
               <Col lg={5} className="d-none d-lg-block">
@@ -79,7 +80,7 @@ function Register() {
                 </div>
               </Col>
               <Col lg={7}>
-                <Card.Body className="p-4">
+                <Card.Body className="p-4 p-lg-5">
                   <div className="text-center mb-4">
                     <h4 className="fw-bold">Create an Account</h4>
                     <p className="text-muted">Fill in your details to get started</p>

@@ -58,7 +58,15 @@ function App() {
           <Container>
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-center">
               <div className="mb-3 mb-md-0">
-                <h5 className="mb-0">ShopEase</h5>
+                <h5 className="mb-0">
+                  <img 
+                    src="/e-commerce-removebg-preview.png" 
+                    alt="ShopEase Logo" 
+                    style={{ width: '50', height: 'auto', maxHeight: '60px' }}
+                    className="me-2 object-contain" 
+                  />
+                  ShopEase
+                </h5>
                 <p className="small mb-0">© {new Date().getFullYear()} All rights reserved.</p>
               </div>
               <div className="d-flex gap-3">

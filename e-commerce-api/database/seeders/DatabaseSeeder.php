@@ -8,6 +8,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Always seed categories first
         $this->call([
             CategorySeeder::class,
             ProductSeeder::class,

@@ -1,0 +1,48 @@
+/* Auth form styling */
+.auth-form .card {
+  border: none;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Improved form controls */
+.auth-form .form-control {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #dee2e6;
+  font-size: 1rem;
+}
+
+.auth-form .form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Auth buttons */
+.auth-form .btn-primary {
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+  transition: all 0.2s ease;
+}
+
+.auth-form .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+}
+
+/* Responsive adjustments */
+@media (min-width: 992px) {
+  .auth-form .form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .auth-form h4 {
+    font-size: 1.75rem;
+  }
+}
+
+/* Make sure form inputs stand out */
+.auth-form .form-control:focus {
+  border-color: #0d6efd;
+}

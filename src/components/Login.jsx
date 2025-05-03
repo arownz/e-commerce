@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Form, Button, Card, Alert, Spinner, Row, Col } from 'react-bootstrap';
+import './AuthForms.css'; // Using the same shared CSS file
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -45,7 +46,7 @@ function Login({ onLogin }) {
         if (error.response.status === 401) {
           setError('Invalid username or password. Please try again.');
         } else if (error.response.status === 500) {
-          setError('Server error. Please try again later or contact support.');
+          setError('Server error. Please try again later.');
         } else if (error.response.data && error.response.data.message) {
           setError(error.response.data.message);
         } else {
@@ -67,7 +68,7 @@ function Login({ onLogin }) {
   return (
     <Container className="py-5 auth-form">
       <Row className="justify-content-center">
-        <Col md={8} lg={6} xl={5}>
+        <Col md={10} lg={8} xl={7}>
           <Card className="shadow border-0 overflow-hidden">
             <Row className="g-0">
               <Col md={5} className="d-none d-md-block">
@@ -90,7 +91,7 @@ function Login({ onLogin }) {
                 </div>
               </Col>
               <Col md={7}>
-                <Card.Body className="p-4">
+                <Card.Body className="p-4 p-lg-5">
                   <div className="text-center mb-4">
                     <h4 className="fw-bold">Sign In</h4>
                     <p className="text-muted">Enter your credentials to access your account</p>

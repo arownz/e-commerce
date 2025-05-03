@@ -1,0 +1,66 @@
+/* Remove outline from nav items */
+.nav-link:focus,
+.navbar-toggler:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Brand hover animation */
+.brand-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--bs-primary);
+  transition: width 0.3s ease;
+}
+
+.brand-link:hover::after {
+  width: 100%;
+}
+
+/* Navigation hover animation */
+.nav-link-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link-hover::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bs-primary);
+  transition: width 0.3s ease;
+}
+
+.nav-link-hover:hover::after {
+  width: 100%;
+}
+
+/* Fix register button */
+.register-btn {
+  font-weight: 500;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+  transition: all 0.2s ease;
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+}
+
+.register-btn:active {
+  transform: translateY(0);
+}
